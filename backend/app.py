@@ -10,6 +10,8 @@ DB_PATH = "backend/db.sqlite3"
 MODEL_PATH = "nlp/artifacts/intent_model.pkl"
 CONF_THRESHOLD = 0.65  # below this, we fall back to LLM
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+# OpenRouter model to use for LLM fallback (user requested)
+OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "tngtech/deepseek-r1t2-chimera:free")
 
 # load secrets
 load_dotenv()
@@ -72,7 +74,8 @@ def llm_reply(history, sys_prompt="You are a friendly sports assistant. Keep rep
         "Content-Type": "application/json",
     }
     payload = {
-        "model": "openrouter/auto",
+        # Use model configured by OPENROUTER_MODEL (defaults to tngtech/deepseek-r1t2-chimera:free)
+        "model": OPENROUTER_MODEL,
         "messages": [{"role":"system","content":sys_prompt}] + history,
         "max_tokens": 180,
         "temperature": 0.7
@@ -84,6 +87,46 @@ def llm_reply(history, sys_prompt="You are a friendly sports assistant. Keep rep
         return data["choices"][0]["message"]["content"].strip()
     except Exception as e:
         return "Sorry, I couldn't think of a good answer right now."
+
+
+@app.get("/llm_test")
+def llm_test():
+    """Lightweight test to verify OpenRouter connectivity and model selection.
+
+    Returns a short reply from the configured model (truncated) or an error.
+    This endpoint will NOT return the API key. It requires the local .env to have OPENROUTER_API_KEY set.
+    """
+    if not OPENROUTER_API_KEY:
+        return jsonify({"ok": False, "error": "OPENROUTER_API_KEY not set locally"}), 400
+
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    test_prompt = "Please reply with a very short yes/no acknowledgement so we can test connectivity."
+    payload = {
+        "model": OPENROUTER_MODEL,
+        "messages": [{"role": "system", "content": "Connectivity test"}, {"role": "user", "content": test_prompt}],
+        "max_tokens": 16,
+        "temperature": 0.0,
+    }
+    try:
+        r = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=12)
+        r.raise_for_status()
+        data = r.json()
+        # Try to extract a short text reply safely
+        reply = None
+        try:
+            reply = data["choices"][0]["message"]["content"].strip()
+        except Exception:
+            # Fallback to raw repr (not including API key)
+            reply = str(data)[:250]
+
+        return jsonify({"ok": True, "model": OPENROUTER_MODEL, "reply": reply})
+    except requests.exceptions.RequestException as e:
+        return jsonify({"ok": False, "error": "Request failed", "detail": str(e)}), 502
+    except Exception as e:
+        return jsonify({"ok": False, "error": "Unexpected error", "detail": str(e)}), 500
 
 @app.get("/")
 def index():
