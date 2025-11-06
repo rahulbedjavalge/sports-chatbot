@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sports Flashcards</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f5f5f5; margin:0; }
+    .wrap { max-width: 560px; margin: 60px auto; background:#fff; border-radius:12px; padding:24px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    h2 { margin-top:0; text-align:center; }
+    .card { border:1px solid #e0e0e0; border-radius:10px; padding:16px; background:#fafafa; min-height:120px; display:flex; align-items:center; justify-content:center; text-align:center; }
+    .answer { display:none; margin-top:12px; font-weight:bold; }
+    .row { margin-top:16px; display:flex; gap:8px; }
+    button { padding:10px 14px; border:none; border-radius:8px; cursor:pointer; }
+    .primary { background:#0b69ff; color:#fff; }
+    .ghost { background:#eee; }
+    a { text-decoration:none; color:#0b69ff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>🏟️ Sports Flashcards</h2>
+    <p style="text-align:center; margin-top:-8px;">Practice with quick Q&A from your dummy match data.</p>
+
+    <div id="question" class="card">Click “New Card” to begin</div>
+    <div id="answer" class="answer"></div>
+
+    <div class="row">
+      <button class="primary" onclick="newCard()">New Card</button>
+      <button class="ghost" onclick="toggleAnswer()">Show Answer</button>
+      <a href="./index.html" style="margin-left:auto; align-self:center;">← Back to Chat</a>
+    </div>
+  </div>
+
+  <script>
+    let current = { q: "", a: "" };
+    let shown = false;
+
+    async function newCard() {
+      shown = false;
+      document.getElementById("answer").style.display = "none";
+      document.getElementById("answer").textContent = "";
+      document.getElementById("question").textContent = "Loading…";
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/quiz");
+        const data = await res.json();
+        current.q = data.question || "No question.";
+        current.a = data.answer || "";
+        document.getElementById("question").textContent = current.q;
+      } catch (e) {
+        document.getElementById("question").textContent = "Could not reach backend. Is Flask running?";
+      }
+    }
+
+    function toggleAnswer() {
+      shown = !shown;
+      const ans = document.getElementById("answer");
+      if (shown) {
+        ans.textContent = current.a || "(no answer)";
+        ans.style.display = "block";
+      } else {
+        ans.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>

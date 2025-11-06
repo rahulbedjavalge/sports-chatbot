@@ -1,0 +1,17 @@
+# Local environment variables
+.env
+
+# Python cache and virtual env
+__pycache__/
+*.py[cod]
+env/
+venv/
+
+# Database and generated artifacts
+backend/db.sqlite3
+nlp/artifacts/
+nlp/data/
+
+# OS / Editor
+.DS_Store
+.vscode/

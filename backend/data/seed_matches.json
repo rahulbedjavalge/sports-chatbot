@@ -1,0 +1,83 @@
+﻿[
+  {
+    "match_id": 1,
+    "sport": "football",
+    "tournament": "City Cup",
+    "home_team": "Alpha FC",
+    "away_team": "Beta United",
+    "home_score": 2,
+    "away_score": 1,
+    "scorers": [
+      {"name": "R. Kumar", "team": "Alpha FC"},
+      {"name": "L. Singh", "team": "Beta United"},
+      {"name": "M. Patel", "team": "Alpha FC"}
+    ],
+    "stadium": "Metro Arena, Berlin",
+    "date": "2025-10-20",
+    "player_of_match": "M. Patel"
+  },
+  {
+    "match_id": 2,
+    "sport": "football",
+    "tournament": "Friendlies",
+    "home_team": "Gamma Town",
+    "away_team": "Delta Rovers",
+    "home_score": 0,
+    "away_score": 0,
+    "scorers": [],
+    "stadium": "Riverside Park, Munich",
+    "date": "2025-10-21",
+    "player_of_match": "—"
+  },
+  {
+    "match_id": 3,
+    "sport": "basketball",
+    "tournament": "Metro League",
+    "home_team": "Berlin Bears",
+    "away_team": "Hamburg Hawks",
+    "home_score": 88,
+    "away_score": 82,
+    "scorers": [
+      {"name": "J. Weber", "team": "Berlin Bears"},
+      {"name": "T. Braun", "team": "Hamburg Hawks"}
+    ],
+    "stadium": "City Sports Hall, Berlin",
+    "date": "2025-10-22",
+    "player_of_match": "J. Weber"
+  },
+  {
+    "match_id": 4,
+    "sport": "football",
+    "tournament": "City Cup",
+    "home_team": "Omega SC",
+    "away_team": "Zeta FC",
+    "home_score": 3,
+    "away_score": 2,
+    "scorers": [
+      {"name": "A. Meier", "team": "Omega SC"},
+      {"name": "S. Kahn", "team": "Zeta FC"},
+      {"name": "A. Meier", "team": "Omega SC"},
+      {"name": "D. Costa", "team": "Omega SC"},
+      {"name": "N. Pinto", "team": "Zeta FC"}
+    ],
+    "stadium": "Omega Ground, Leipzig",
+    "date": "2025-10-23",
+    "player_of_match": "A. Meier"
+  },
+  {
+    "match_id": 5,
+    "sport": "football",
+    "tournament": "Super Cup",
+    "home_team": "Beta United",
+    "away_team": "Alpha FC",
+    "home_score": 1,
+    "away_score": 1,
+    "scorers": [
+      {"name": "L. Singh", "team": "Beta United"},
+      {"name": "M. Patel", "team": "Alpha FC"}
+    ],
+    "stadium": "North Arena, Dresden",
+    "date": "2025-10-24",
+    "player_of_match": "L. Singh"
+  }
+]
