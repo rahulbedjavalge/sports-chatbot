@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 # --- CONFIG ---
 DB_PATH = "backend/db.sqlite3"
 MODEL_PATH = "nlp/artifacts/intent_model.pkl"
-CONF_THRESHOLD = 0.65  # below this, we fall back to LLM
+CONF_THRESHOLD = 0.4  # below this, we fall back to LLM
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 # OpenRouter model to use for LLM fallback (user requested)
 OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "tngtech/deepseek-r1t2-chimera:free")
@@ -84,7 +84,11 @@ def llm_reply(history, sys_prompt="You are a friendly sports assistant. Keep rep
         r = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=25)
         r.raise_for_status()
         data = r.json()
-        return data["choices"][0]["message"]["content"].strip()
+        reply = data["choices"][0]["message"]["content"].strip()
+        # Handle empty responses from free models
+        if not reply:
+            return "I understand your question, but I'm not sure how to respond right now. Try asking about specific match details!"
+        return reply
     except Exception as e:
         return "Sorry, I couldn't think of a good answer right now."
 
@@ -196,6 +200,7 @@ def chat():
     teams = get_all_teams(conn)
     team_a, team_b = extract_teams_from_text(message, teams)
     row = None
+    
     if conf >= CONF_THRESHOLD and team_a and team_b:
         row = find_match_row(conn, team_a, team_b)
 
@@ -228,4 +233,7 @@ def chat():
 if __name__ == "__main__":
     # Allow running the app directly for local testing: `python backend/app.py`
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    # Respect FLASK_DEBUG env var; default to False so the development reloader
+    # doesn't spawn a child process (makes background runs simpler).
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(host="0.0.0.0", port=port, debug=debug, use_reloader=debug)
