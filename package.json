@@ -1,0 +1,13 @@
+{
+  "name": "sports-chatbot",
+  "version": "1.0.0",
+  "description": "Enhanced Sports Chatbot with NLP and LLM integration",
+  "main": "api/app.py",
+  "scripts": {
+    "dev": "python backend/app.py",
+    "vercel-build": "echo 'Build completed'"
+  },
+  "keywords": ["chatbot", "sports", "nlp", "flask", "vercel"],
+  "author": "Sports Chatbot Team",
+  "license": "MIT"
+}

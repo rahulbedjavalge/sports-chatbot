@@ -1,4 +1,7 @@
-﻿const API = "http://127.0.0.1:5000/chat";
+﻿// Dynamic API endpoint - works for both local development and Vercel deployment
+const API = window.location.hostname === 'localhost' ? 
+  "http://127.0.0.1:5000/api/chat" : 
+  "/api/chat";
 const chatEl = document.getElementById("chat");
 const typingEl = document.getElementById("typing");
 const inputEl = document.getElementById("userInput");
@@ -18,10 +21,6 @@ function addBubble(text, who="bot"){
 function quickAsk(text){
   inputEl.value = text;
   sendMsg();
-}
-
-function openFlashcards(){
-  window.location.href = "./flashcards.html";
 }
 
 async function sendMsg(){
