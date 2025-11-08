@@ -1,7 +1,7 @@
-﻿// Dynamic API endpoint - works for both local development and Vercel deployment
-const API = window.location.hostname === 'localhost' ? 
-  "http://127.0.0.1:5000/api/chat" : 
-  "/api/chat";
+﻿// Dynamic API endpoint - works for local development (localhost/127.0.0.1/file://) and Vercel deployment
+const _hostname = window.location.hostname || '';
+const isLocalHost = ["localhost", "127.0.0.1", ""].includes(_hostname);
+const API = isLocalHost ? "http://127.0.0.1:5000/api/chat" : "/api/chat";
 const chatEl = document.getElementById("chat");
 const typingEl = document.getElementById("typing");
 const inputEl = document.getElementById("userInput");

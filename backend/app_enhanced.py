@@ -11,7 +11,8 @@ from datetime import datetime
 
 # --- CONFIG ---
 DB_PATH = "db.sqlite3"
-MODEL_PATH = "../nlp/artifacts/intent_model_enhanced.pkl"
+import os
+MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../nlp/artifacts/intent_model_enhanced.pkl"))
 CONF_THRESHOLD = 0.6  # Updated based on enhanced model analysis
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "tngtech/deepseek-r1t2-chimera:free")
@@ -36,9 +37,13 @@ except Exception as e:
         print("❌ No model found!")
         intent_model = None
 
-@lru_cache(maxsize=128)
 def get_conn():
     """Cached database connection"""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+def get_conn():
+    """Always return a fresh database connection"""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn

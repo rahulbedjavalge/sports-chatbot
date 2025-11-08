@@ -10,7 +10,7 @@ def create_enhanced_database():
     # Connect to database
     conn = sqlite3.connect('db.sqlite3')
     cursor = conn.cursor()
-    
+
     # Drop existing tables to recreate with new schema
     cursor.execute('DROP TABLE IF EXISTS scorers')
     cursor.execute('DROP TABLE IF EXISTS matches')
@@ -18,7 +18,7 @@ def create_enhanced_database():
     cursor.execute('DROP TABLE IF EXISTS teams')
     cursor.execute('DROP TABLE IF EXISTS tournaments')
     cursor.execute('DROP TABLE IF EXISTS team_standings')
-    
+
     # Create enhanced tables
     cursor.execute('''
         CREATE TABLE tournaments (
@@ -29,7 +29,7 @@ def create_enhanced_database():
             end_date DATE
         )
     ''')
-    
+
     cursor.execute('''
         CREATE TABLE teams (
             id INTEGER PRIMARY KEY,
@@ -40,7 +40,7 @@ def create_enhanced_database():
             capacity INTEGER
         )
     ''')
-    
+
     cursor.execute('''
         CREATE TABLE players (
             id INTEGER PRIMARY KEY,
@@ -52,7 +52,7 @@ def create_enhanced_database():
             FOREIGN KEY (team_id) REFERENCES teams(id)
         )
     ''')
-    
+
     cursor.execute('''
         CREATE TABLE matches (
             id INTEGER PRIMARY KEY,
@@ -68,7 +68,7 @@ def create_enhanced_database():
             FOREIGN KEY (tournament_id) REFERENCES tournaments(id)
         )
     ''')
-    
+
     cursor.execute('''
         CREATE TABLE scorers (
             id INTEGER PRIMARY KEY,
@@ -79,6 +79,63 @@ def create_enhanced_database():
             FOREIGN KEY (player_id) REFERENCES players(id)
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE team_standings (
+            id INTEGER PRIMARY KEY,
+            team_id INTEGER,
+            tournament TEXT,
+            position INTEGER,
+            points INTEGER,
+            wins INTEGER,
+            draws INTEGER,
+            losses INTEGER,
+            FOREIGN KEY (team_id) REFERENCES teams(id)
+        )
+    ''')
+
+    # --- Deterministic test data for unit tests ---
+    # Insert tournament
+    cursor.execute("INSERT INTO tournaments (name, season, start_date, end_date) VALUES (?, ?, ?, ?)",
+                   ("City Cup", "2024/2025", "2024-08-01", "2025-05-31"))
+    tournament_id = cursor.lastrowid
+
+    # Insert teams
+    cursor.execute("INSERT INTO teams (name, city, founded_year, stadium, capacity) VALUES (?, ?, ?, ?, ?)",
+                   ("Alpha FC", "Alpha City", 1901, "Alpha Stadium", 40000))
+    alpha_id = cursor.lastrowid
+    cursor.execute("INSERT INTO teams (name, city, founded_year, stadium, capacity) VALUES (?, ?, ?, ?, ?)",
+                   ("Beta United", "Beta Town", 1920, "Beta Arena", 35000))
+    beta_id = cursor.lastrowid
+
+    # Insert player
+    cursor.execute("INSERT INTO players (name, team_id, position, goals, appearances) VALUES (?, ?, ?, ?, ?)",
+                   ("Rodriguez", alpha_id, "Forward", 27, 30))
+    rodriguez_id = cursor.lastrowid
+
+    # Insert match between Alpha FC and Beta United on 2024-11-01 at Alpha Stadium in City Cup
+    cursor.execute("INSERT INTO matches (home_team_id, away_team_id, home_score, away_score, match_date, stadium, tournament_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                   (alpha_id, beta_id, 2, 1, "2024-11-01", "Alpha Stadium", tournament_id))
+    match_id = cursor.lastrowid
+
+    # Insert scorers for the match
+    cursor.execute("INSERT INTO scorers (match_id, player_id, minute) VALUES (?, ?, ?)",
+                   (match_id, rodriguez_id, 34))
+    # Add another scorer for Beta United
+    cursor.execute("INSERT INTO players (name, team_id, position, goals, appearances) VALUES (?, ?, ?, ?, ?)",
+                   ("Smith", beta_id, "Midfielder", 10, 28))
+    smith_id = cursor.lastrowid
+    cursor.execute("INSERT INTO scorers (match_id, player_id, minute) VALUES (?, ?, ?)",
+                   (match_id, smith_id, 67))
+
+    # Insert team standings for Premier League and City Cup
+    cursor.execute("INSERT INTO team_standings (team_id, tournament, position, points, wins, draws, losses) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                   (alpha_id, "Premier League", 1, 80, 25, 5, 2))
+    cursor.execute("INSERT INTO team_standings (team_id, tournament, position, points, wins, draws, losses) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                   (alpha_id, "City Cup", 4, 73, 24, 1, 7))
+
+    # Commit changes
+    conn.commit()
+    conn.close()
     
     cursor.execute('''
         CREATE TABLE team_standings (
